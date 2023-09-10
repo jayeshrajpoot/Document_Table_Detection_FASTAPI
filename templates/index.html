@@ -1,0 +1,147 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            width: 100%;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .result {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .back-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Table Detection</h1>
+        <form action="/detect_table/" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="image">Upload an Image:</label>
+                <input type="file" name="file" accept=".jpg, .jpeg, .png" required>
+            </div>
+            <button type="submit">Detect Table</button>
+        </form>
+        <div class="result">
+            {% if result %}
+            {% if result.is_table %}
+            <p>Table Detected!</p>
+            {% else %}
+            <p>No Table Detected</p>
+            {% endif %}
+            <a class="back-button" href="/">Upload Another Image</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Detection App</title>
+    <link rel="stylesheet" href="/static/styles.css"> <!-- Link to your CSS file -->
+</head>
+
+<body>
+    <h1>Table Detection App</h1>
+
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <label for="file">Upload an image:</label>
+        <input type="file" name="file" id="file" accept="image/*">
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result">
+        <!-- The bounding box coordinates will be displayed here -->
+    </div>
+
+    <script>
+        // JavaScript code for handling the response and displaying bounding boxes
+        const form = document.querySelector("form");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch("/upload/", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const boundingBoxes = data.bounding_boxes;
+
+                // Display bounding boxes on the image (you can customize this part)
+                resultDiv.innerHTML = "<h2>Detected Bounding Boxes:</h2>";
+                boundingBoxes.forEach((box) => {
+                    const [x1, y1, x2, y2] = box;
+                    const div = document.createElement("div");
+                    div.style.border = "2px solid red";
+                    div.style.position = "absolute";
+                    div.style.left = `${x1}px`;
+                    div.style.top = `${y1}px`;
+                    div.style.width = `${x2 - x1}px`;
+                    div.style.height = `${y2 - y1}px`;
+                    resultDiv.appendChild(div);
+                });
+            } else {
+                resultDiv.innerHTML = "<p>Error processing the image. Please try again.</p>";
+            }
+        });
+    </script>
+</body>
+
+</html>
